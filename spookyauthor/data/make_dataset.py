@@ -28,8 +28,11 @@ def load_raw_data(input_filepath='raw'):
     test_df 
     train_df
     """
-    project_dir = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
-    return
+    project_dir = os.path.join(os.path.dirname(__file__), "raw")
+    print(project_dir)
+    train = pd.read_csv(os.path.join(project_dir,"train.csv"))
+    test = pd.read_csv(os.path.join(project_dir,"test.csv"))
+    return train, test
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
