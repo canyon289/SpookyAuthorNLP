@@ -35,6 +35,13 @@ In this section, clearly describe the problem that is to be solved. The problem 
 
 ### Datasets and Inputs
 _(approx. 2-3 paragraphs)_
+Kaggle provides two datasets, a train dataset and a test dataset. The
+train dataset has three columns, a random ID, a string of characters,
+and a label indicating the author. The test dataset is similar but does
+not contain labels.
+
+Further details on the train and test datasets can be found in the
+exploratory analysis folder
 
 In this section, the dataset(s) and/or input(s) being considered for the project should be thoroughly described, such as how they relate to the problem and why they should be used. Information such as how the dataset or input is (was) obtained, and the characteristics of the dataset or input, should be included with relevant references and citations as necessary It should be clear how the dataset(s) or input(s) will be used in the project and whether their use is appropriate given the context of the problem.
 

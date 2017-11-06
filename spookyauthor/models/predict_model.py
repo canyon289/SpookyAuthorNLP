@@ -2,6 +2,7 @@
 All code for predictive models goes here
 """
 import pandas as pd
+from ..transform import preprocessing
 
 
 def submission_generator(test_df, pipeline, filename):
@@ -12,13 +13,11 @@ def submission_generator(test_df, pipeline, filename):
     -------
     Dataframe of predictions
     """
-    
-    ids=test_df["id"]
-    text = df["text"]
+    ids, text, _ = preprocessing.split_cols(test_df)
 
     preds = pipeline.predict_proba(text)
 
-    df = pd.DataFrame(preds)
+    df = pd.DataFrame(preds, columns=["EAP", "HPL", "MWS"])
     df["id"] = ids
     df = df.set_index("id")
 
