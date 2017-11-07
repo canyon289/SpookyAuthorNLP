@@ -2,7 +2,7 @@
 All code for predictive models goes here
 """
 import pandas as pd
-from ..transform import preprocessing
+from spookyauthor.data.transform import Preprocessing
 
 
 def submission_generator(test_df, pipeline, filename):
@@ -13,7 +13,7 @@ def submission_generator(test_df, pipeline, filename):
     -------
     Dataframe of predictions
     """
-    ids, text, _ = preprocessing.split_cols(test_df)
+    ids, text, _ = Preprocessing.split_cols(test_df)
 
     preds = pipeline.predict_proba(text)
 

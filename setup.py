@@ -8,6 +8,5 @@ setup(
     # scripts=[],
     description='SpookyAuthorAnalysis',
     # long_description=open('README.txt').read(),
-    install_requires=[
-    ],
+    install_requires=['pytest', 'xgboost'],
 )
