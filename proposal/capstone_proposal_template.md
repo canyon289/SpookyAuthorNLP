@@ -17,6 +17,11 @@ Another example is the capture of Ted Kaczynski (Source: NPR). In this case Ted'
 Ted's unique style of writing. By comparing a previous document Ted had written against the manifesto published in the 
 Washington Post the FBI was able to correctly identify Ted as the Unabomber.
 
+In academia there are numerous studies that focus on linguistic analysis.
+For example in author identification by "Author Identification on the Large Scale"
+by Madigan Etal discuss various methods of author identification such
+as PCA and Baysian Multinomial Logistic regression.
+
 More modern examples of Stylometry and linguistic examples are present in one's smartphone. For example
 Spam Detection of emails is a type of binary classification where the text in documents is analyzed to determine
 messages that the user would want to read, versus documents that are mass mailed. Another example is 
@@ -48,6 +53,11 @@ In the string we can see some interesting words such as surgcingle and ribands.
 The hops is by analyzing the writing styles, word usage, and phrasing, of thousands
 of these strings we can id the authors without needing labels.
 
+The dataset is roughly balanced with 7900 samples from Edgar Allen Poe,
+6044 from Mary Shelley, and 5635 from HP Lovecraft. When making test
+train splits the stratified shuffle split will be used to preserve
+the class ratios from the train set.
+
 Further details on the train and test datasets can be found in the
 exploratory analysis folder
 
@@ -59,6 +69,11 @@ average word lengths.
 
 Attempts will be made to see how well a single classifier will work. If a single model ranks poorly on the Kaggle leaderboard
 an ensemble of models will be used to predict intermediate values, with a final model to predict over the aggregate.
+
+Specific models that will be tested include Support Vector Machines,
+xgboost, and naive bayes models. Additionally feature engineering
+techniques such as as Term Frequency Inverse Document Frequency,
+or counting punctuation.
 
 ### Benchmark Model
 The benchmark model used for this example was a Most Frequent terms classifier. As demonstrated in the exploratory
@@ -93,5 +108,6 @@ The solution is clearly defined, especially as Kaggle
 holds a validation set that will be used to judge model performance.
 
 ### References
+https://sites.oogle.com/site/dfradkin/authorid-csna06.pdf
 http://www.npr.org/2017/08/22/545122205/fbi-profiler-says-linguistic-work-was-pivotal-in-capture-of-unabomber
 https://en.m.wikipedia.org/wiki/Stylometry
