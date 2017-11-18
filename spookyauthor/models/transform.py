@@ -4,7 +4,7 @@ Various programs that transform my input data
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
-
+from nltk.stem.wordnet import WordNetLemmatizer
 
 class DummyTransformer(BaseEstimator, TransformerMixin):
 
@@ -64,3 +64,12 @@ class TextTransformer:
     def sentence_length(X):
         """Get the length of the string for each author"""
         return X.apply(lambda x: len(x))
+
+
+WNL = WordNetLemmatizer()
+
+
+def lemmatizer(doc):
+    """Lemmatizes a string"""
+    words = [WNL.lemmatize(word) for word in doc.split(" ")]
+    return words
