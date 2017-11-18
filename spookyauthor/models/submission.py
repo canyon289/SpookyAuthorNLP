@@ -2,10 +2,10 @@
 All code for predictive models goes here
 """
 import pandas as pd
-from spookyauthor.data.transform import Preprocessing
+from data.make_dataset import Preprocessing
 
 
-def submission_generator(test_df, pipeline, filename):
+def generator(test_df, pipeline, filename):
     """Takes test dataframe and object that implements transform/predict methods
     and writes of predictions for submission to Kaggle
     
