@@ -30,7 +30,6 @@ def load_raw_data(input_filepath='raw'):
     train_df
     """
     project_dir = os.path.join(os.path.dirname(__file__), "raw")
-    print(project_dir)
     train = pd.read_csv(os.path.join(project_dir, "train.csv"))
     test = pd.read_csv(os.path.join(project_dir, "test.csv"))
     return train, test
