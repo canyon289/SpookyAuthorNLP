@@ -2,16 +2,9 @@ import os
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.metrics import confusion_matrix
 import numpy as np
-import logging
 
-# Setup Logging
-logging.basicConfig(filename='model_run.log', level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler())
-logging.info("Starting New Run \n")
-
-CROSS_EVALUATE = True
-FULL_EVALUATE = True
 SUBMISSION = False
+FULL_EVALUATE = True
 
 # Load data
 from spookyauthor.data import make_dataset
@@ -29,35 +22,26 @@ author_int = Labels.fit_transform(authors)
 # Feature pipeline
 from sklearn.pipeline import Pipeline
 from spookyauthor.models.transform import TextTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from spookyauthor.models.transform import lemmatizer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.preprocessing import MinMaxScaler
-features = Pipeline(
+
+features = FeatureUnion(
     [
-    ("tfidf", CountVectorizer(tokenizer=lemmatizer, stop_words='english', ngram_range=(1, 3))),
+    ('basic_preprocessing', TextTransformer(features=['word_count', 'sentence_length'])),
+    ("tfidf", TfidfVectorizer(tokenizer=lemmatizer, stop_words='english'))
     ]
 )
 
 # Add Predictor
-from sklearn.naive_bayes import MultinomialNB
+from xgboost import XGBClassifier
 predict_pipeline = Pipeline(
     [
     ('union', features),
-    ('naive_bayes', MultinomialNB()),
+    ('xgb', XGBClassifier(n_estimators=1000, objective=' multi:softprob', eval_metric='mlogloss', silent=False)),
     ]
 )
 
 # Make Prediction and check score
-if CROSS_EVALUATE is True:
-    from sklearn.model_selection import cross_val_score
-    from sklearn.metrics import make_scorer
-    from sklearn.metrics import log_loss
-
-    scorer = make_scorer(log_loss, greater_is_better=False, needs_proba=True)
-    scores = cross_val_score(predict_pipeline, text, author_int, scoring=scorer)
-
-    logging.info("Cross Val Score is {0}".format(np.mean(scores)))
 
 
 if FULL_EVALUATE is True:
@@ -66,11 +50,12 @@ if FULL_EVALUATE is True:
 
     predict_pipeline.fit(text, author_int)
     y_pred = predict_pipeline.predict_proba(text)
+
     score = log_loss(authors, y_pred)
+    print("Score was {0}".format(score))
 
-    logging.info("Full Evaluate Score was {0}".format(score))
 
-    cm = confusion_matrix(author_int, np.argmax(y_pred, axis=1))
+    cm = confusion_matrix(author_int, np.argmax(y_pred,axis=1))
     print(cm)
     plot_confusion_matrix(cm, Labels.classes_)
 
