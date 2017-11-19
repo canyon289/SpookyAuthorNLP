@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 from nltk.stem.wordnet import WordNetLemmatizer
+from sklearn.naive_bayes import MultinomialNB
 
 class DummyTransformer(BaseEstimator, TransformerMixin):
 
@@ -18,7 +19,30 @@ class DummyTransformer(BaseEstimator, TransformerMixin):
         return transformed_x
 
 
-class TextTransformer:
+class NaiveBayesTransformer(MultinomialNB):
+    """Makes Naive Bayes a transformer"""
+    def transform(self, X):
+        return self.predict_proba(X)
+
+    def fit_transform(self, X, y):
+        return self.fit(X, y).predict_proba(X)
+
+    def get_feature_names(self):
+        """Gets the feature names of the Maive Bayes Transformer"""
+        return ["nb_{0}".format(class_name) for class_name in self.classes_]
+
+
+class PassthroughTransformer(BaseEstimator, TransformerMixin):
+    """Takes Inputs and does nothing to them"""
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        return X
+
+
+class TextTransformer(BaseEstimator, TransformerMixin):
 
     def __init__(self, features):
         """Takes column of text and returns back array of features. Features list is specified by features
