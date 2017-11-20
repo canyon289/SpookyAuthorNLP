@@ -154,17 +154,32 @@ as well there are numerous tutorials that use XGboost models so to take advantag
 it is helpful to use XGboost as well to compare to other folks performance.
 
 ### Benchmark
-In this section, you will need to provide a clearly defined benchmark result or threshold for comparing across performances obtained by your solution.
- The reasoning behind the benchmark (in the case where it is not an established result) should be discussed. Questions to ask yourself when writing this section:
-- _Has some result or value been provided that acts as a benchmark for measuring performance?_
-- _Is it clear how this result or value was obtained (whether by data or by hypothesis)?_
+Two benchmarks were used were a dummy classifier, and a simple XGBoost pipeline with default parameters.
+
+#### Dummy Classifier
+The dummy classifier is quite simple. It just predicts the most prevalent class as the prediction for all classes.
+In this case the author with the most samples in the train set was Edgar Allen Poe. When uploading this prediction
+to the Kaggle leaderboard the results were disappointing. The logloss score of 19 was the second worst score on the
+leader board. As is such this benchmark was fairly useless and frankly pretty embarassing to keep on the leaderboard.
+
+#### Simple XGBoost Classifier
+The next attempt was a simple XGboost classifier pipeline. In this pipeline the text was transformed with a default
+TFIDF transformer and predictions were made through the a default XGboost model. This model performed much better,
+around .84, but was still near the bottom 90% of the leaderboard.
+
+The simple XGboost benchmark was subsequently chosen as the more realistic internal benchmark for performance for
+own models. It is important to note that the Kaggle leaderboard position itself is a benchmark I used as well, although
+it was taken with a grain of salt as some of the implementations on Kaggle, while impressively good, are also
+impressively complex.
 
 
 ## III. Methodology
 _(approx. 3-5 pages)_
 
 ### Data Preprocessing
-In this section, all of your preprocessing steps will need to be clearly documented, if any were necessary. From the previous section, any of the abnormalities or characteristics that you identified about the dataset will be addressed and corrected here. Questions to ask yourself when writing this section:
+In this section, all of your preprocessing steps will need to be clearly documented,
+if any were necessary. From the previous section, any of the abnormalities or
+ characteristics that you identified about the dataset will be addressed and corrected here. Questions to ask yourself when writing this section:
 - _If the algorithms chosen require preprocessing steps like feature selection or feature transformations, have they been properly documented?_
 - _Based on the **Data Exploration** section, if there were abnormalities or characteristics that needed to be addressed, have they been properly corrected?_
 - _If no preprocessing is needed, has it been made clear why?_
@@ -203,7 +218,8 @@ In this section, your model’s final solution and its results should be compare
 _(approx. 1-2 pages)_
 
 ### Free-Form Visualization
-In this section, you will need to provide some form of visualization that emphasizes an important quality about the project. It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
+In this section, you will need to provide some form of visualization that emphasizes an important quality about the project.
+ It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
 - _Have you visualized a relevant or important quality about the problem, dataset, input data, or results?_
 - _Is the visualization thoroughly analyzed and discussed?_
 - _If a plot is provided, are the axes, title, and datum clearly defined?_
