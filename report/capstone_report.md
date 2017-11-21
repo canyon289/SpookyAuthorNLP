@@ -177,7 +177,7 @@ impressively complex.
 ### Data Preprocessing
 One benefit of Kaggle is that the majority of the data munging is completed
 for you. As is such Kaggle provided tidy datasets of the inputs that contained
-three colums, an ID column, the actual text, and the author label. For the
+three columns, an ID column, the actual text, and the author label. For the
 test dataset the tidy dataset was the exact same, except the labels were
 not included.
 
@@ -206,8 +206,8 @@ in each document.
 Lemmazation is a process where similar words are transformed into a similar
 root word, for example "Flowers" and "Flower" transform into "Flower". This
 means in the vectorization the two words would end up being counting
-in the same column, whereas if they weren't preprocsesed they would be counted
-as two distcint words.
+in the same column, whereas if they weren't preprocessed they would be counted
+as two distinct words.
 
 #### Stop Words Removal
 Stop Words are words in a language that are relatively meaningless for the
@@ -225,7 +225,7 @@ columns generated is typically in the thousands to tens of thousands.
 Singular Vector Decomposition is a method that reduces the number of columns
 in a matrix to the ones that provide the least amount of redunancy. In
 machine learning terms this is referred to as dimensionality reduction.
-The idea is by giving the learniing algorith less features that provide
+The idea is by giving the learning algorithm less features that provide
 more information it will have an easier time predicting the underlying
 patterns in the data. This technique posed some challenges as it was returning
 negative values, which cannot be used by the Naive Bayes classifier, but it was
@@ -244,17 +244,55 @@ model was literally two lines of python code. The model performed much better
 than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
 
 ##### TDIDF, Lemmization, and XGboost
-##### TDIDF, Lemmization, and XGboost
-##### TDIDF, Lemmization, and XGboost
-The first real attempt prediction was a simple TDIDF vectorizer with a
-default XGBoost Classifier. This pipeline was very simple, the entire
-model was literally two lines of python code. The model performed much better
-than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
-In this section, the process for which metrics, algorithms, and techniques that you implemented for the given data will need to be clearly documented. It should be abundantly clear how the implementation was carried out, and discussion should be made regarding any complications that occurred during this process. Questions to ask yourself when writing this section:
+The next model included Lemmatization. As described above lemmatization is a method where words that are topically
+similar are transformed to be represented as the same word. The difference between tokenization and lemmatization
+is that lemmatization transforms the words into non english words. The implementation of lemmatization required some
+customer feature building but it was not too difficult, as both the NLTK and sklearn libraries made the integration
+fairly straightforward. In this step stop words were removed as well.
+Another inclusion was handbuilt features. The two included were word count and string length. Through testing
+I learned that removing or including these features did not affect my leadboard score very much.
 
-- _Is it made clear how the algorithms and techniques were implemented with the given datasets or input data?_
-- _Were there any complications with the original metrics or techniques that required changing prior to acquiring a solution?_
-- _Was there any part of the coding process (e.g., writing complicated functions) that should be documented?_
+Unfortunately this model fared worse than the previous model, only achieving .96 on the leaderboard.
+
+##### TDIDF, Lemmatization, and Naive Bayes
+An outcome of the previous model was learning how long it took to iterate through XGboost models. Although not strictly
+timed, each trial took about 2 minutes to run. While that wasn't terribly long it also meant that iterating
+on features was not as quick as I was hoping.
+
+In an effort to speed up iteration I switched to using a Naive Bayes model. Using Naive Bayes I was able to quickly
+iterate through many parameters. In this step I performed many experiments, such as changing the ngram length in
+TDIDF, using SVD for dimensionality reduction, and switching TDIDF with a Word Count vectorizer in place of TDIDF.
+
+In this step I also completed all my evaluation metrics, including the cross validation code block and a confusion matrix
+visualization.
+
+Creating these tools helped me with two insights. One was that the hand built features were not very helpful in predicting
+the author. The other though was that meta learning that the faster I could iterate on features, the more quickly
+I could start converging on things that worked.
+
+The results of this stage were extremely good and I was able to achieve the best performance to date, reducing my
+score to .49 on the public leaderboard.
+
+##### TDIDF, Lemmatization, and Naive Bayes XGboost Stack
+The last model I used Naive Bayes as a feature generator for an XGboost model. In this pipeline I used a CountVectorizer
+first to transform the text, then passed that matrix to both a Naive Bayes Classifier and a SVD transformer for
+feature reduction. The XGBoost model would then be given the output of the Naive Bayes classifier and the SVD
+transformer and be trained on the union of those two features.
+
+I specifically wanted to implement this model to learn how to implement model stacking using the sklearn pipe api.
+While it eventually was doable it was not nearly as straightforward as I would have hoped. It required wrapping
+the Naive Bayes predictor into a transformer class, which was thankfully supported by sklearn. However the
+more challenging part was using the feature_importance chart in XGboost.
+
+XGBoost provides a utility that lets users introspect into the model by seeing which features were most used for splits.
+Due to implementation details with sklearns pipelines, the feature labels would only display as numbers
+which would not be very human readable.
+![Unreadable Features Labels](images/FeatureImportance.png "Feature Importance No Labels")
+To get human readable labels back, it again was doable but it required some hacks to get it to work.
+
+![Readable Features Labels](images/FeatureImportance_Labels.png "FeatureImportance Labels")
+Unfortunately again the model was my highest ranking model, coming in with a leaderboard score over 1, but an important
+outcome of this implementation was learning how far I could extend the sklearn API.
 
 ### Refinement
 Numerous techniques and processes were used to refine the model.  The first was
@@ -285,14 +323,20 @@ get ideas and see what others have tried and done.
 
 
 ## IV. Results
-_(approx. 2-3 pages)_
 
 ### Model Evaluation and Validation
-In this section, the final model and any supporting qualities should be evaluated in detail. It should be clear how the final model was derived and why this model was chosen. In addition, some type of analysis should be used to validate the robustness of this model and its solution, such as manipulating the input data or environment to see how the model’s solution is affected (this is called sensitivity analysis). Questions to ask yourself when writing this section:
-- _Is the final model reasonable and aligning with solution expectations? Are the final parameters of the model appropriate?_
-- _Has the final model been tested with various inputs to evaluate whether the model generalizes well to unseen data?_
-- _Is the model robust enough for the problem? Do small perturbations (changes) in training data or the input space greatly affect the results?_
-- _Can results found from the model be trusted?_
+The best model was the Naive Bayes implementation with just Count Vectorizer for two reasons. For one it performed the
+best on the Kaggle leaderboard. However the softer code maintainability metric, it is a much simpler implementation.
+The entire pipeline consisted of off the shelf sklearn modules with extra methods used for loading the data, making
+predictions, and evaluating the performance through cross validation and confusion matrices.
+
+In constrast the XGBoost implementation required the installation of custom packages that were compiled from github, as
+a minimum. In the stacked model implementation, the Naive Bayes classifier had to be wrapped into a transformer
+wrapper, the pipeline for feature transformation became more complex, requiring another custom passthrough transformer
+to be coded, and model evaluation required deeper more custom code and some Python attribute hacking.
+
+In terms of time and results the Naive Bayes implementation was the best combination for time and efficiency.
+
 
 ### Justification
 Fortunately the final solution was better than the initial baseline, but unfortunately
@@ -302,10 +346,6 @@ such as deep neural nets and model ensembling. While these techniques perform
 very well, with the hardware limitations I had it would have been
 difficult to replicate the results in a reasonable amount of time.
 
-In this section, your model’s final solution and its results should be compared to the benchmark you established earlier in the project using some type of statistical analysis. You should also justify whether these results and the solution are significant enough to have solved the problem posed in the project. Questions to ask yourself when writing this section:
-- _Are the final results found stronger than the benchmark result reported earlier?_
-- _Have you thoroughly analyzed and discussed the final solution?_
-- _Is the final solution significant enough to have solved the problem?_
 
 
 ## V. Conclusion
@@ -325,7 +365,7 @@ on predictions. However it becomes frustrating when you see that many others
 are able to make models that are much more predictive than yours. For me
 this is the difficulty with Kaggle, because it is competitive it requires
 large amount of dedication and time to get to the top. In some ways as well
-it's an unrealstic proxy for real life as the datasets and problems are predefined
+it's an unrealistic proxy for real life as the datasets and problems are predefined
 whereas in most companies solving those two problems are just as challenging
 as any of the math or coding.
 
@@ -340,8 +380,8 @@ From the implementation standpoint I really struggled with balancing
 took more thought up front, and was also constraining, but when I got
 it right it made iterating on models much more quickly.
 
-My biggest takeaway however was the use of uniitesting in machine learning code.
-Using uniitests help me really understand how techniques were performding,
+My biggest takeaway however was the use of unittesting in machine learning code.
+Using uniitests help me really understand how techniques were performing,
 as well as debug machine learning pipelines, in reusable and clear ways.
 In the future I'll continue using this technique to ensure that my hypothesis
 about how the code functions matches the actual functionality.
@@ -352,3 +392,7 @@ Further efforts on this project could increase the use of ensembling to measure
 the increase in performance. Additionally more advanced techniques such
 as Deep Learning could be utilized to see if more information could be
 extracted from the given dataset.
+
+
+### References
+https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html
