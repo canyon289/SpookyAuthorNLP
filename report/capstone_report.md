@@ -15,7 +15,6 @@ As well as provided the datasets Kaggle also provides a platform for sharing cod
 Although not required, after downloading the dataset and making predictions, the resultant predictions can be
 uploaded back to Kaggle to see how they fare against others models.
 
-
 ### Problem Statement
 The specific problem is "Given a string of words is it possible to classify the author of the text as Edgar Allen Poe,
 Mary Shelley, or HP Lovecraft".
@@ -174,27 +173,115 @@ impressively complex.
 
 
 ## III. Methodology
-_(approx. 3-5 pages)_
 
 ### Data Preprocessing
-In this section, all of your preprocessing steps will need to be clearly documented,
-if any were necessary. From the previous section, any of the abnormalities or
- characteristics that you identified about the dataset will be addressed and corrected here. Questions to ask yourself when writing this section:
-- _If the algorithms chosen require preprocessing steps like feature selection or feature transformations, have they been properly documented?_
-- _Based on the **Data Exploration** section, if there were abnormalities or characteristics that needed to be addressed, have they been properly corrected?_
-- _If no preprocessing is needed, has it been made clear why?_
+One benefit of Kaggle is that the majority of the data munging is completed
+for you. As is such Kaggle provided tidy datasets of the inputs that contained
+three colums, an ID column, the actual text, and the author label. For the
+test dataset the tidy dataset was the exact same, except the labels were
+not included.
+
+As mentioned above though, strings of text are not meaningful to machine learning
+algorithms. As is such a number of data transformation steps were performed.
+Each is detailed below.
+
+#### Column Splitting
+The first step was to take the raw csv file and split it into three columns,
+ID, Text, and Author if available. The IDs were not used in the model
+but were required as part of the submission to Kaggle so it was important they
+were retained.
+
+#### Vectorization
+Each text string was vectorized using either the Term Frequency Inverse Document
+Frequency method. As explained above what this does is turn a corpus of text
+into an Words X Samples matrix, where the height of the matrix is the number
+of transformed samples, and the columns are the ratio of word count to word
+frequency in that particular document. As will be discussed below
+this was the first method used but after further testing it was found that
+Count Vectorization yielded better performance. Count Vectorization is similar
+except that instead of a ratio it simply just counts the number of words
+in each document.
+
+#### Lemmazation
+Lemmazation is a process where similar words are transformed into a similar
+root word, for example "Flowers" and "Flower" transform into "Flower". This
+means in the vectorization the two words would end up being counting
+in the same column, whereas if they weren't preprocsesed they would be counted
+as two distcint words.
+
+#### Stop Words Removal
+Stop Words are words in a language that are relatively meaningless for the
+concept of the sentence. For example in this sentence, the words "the", for",
+"this", don't add any meaningful value, they are just words we use to stay
+compliant with english language structure. The words that do convey meaning
+are "meaningful", "value", and "sentence". We want the predictive algorithm
+to be able to discern the topic from the noise and by removing stop words
+we help it hone into that structure.
+
+#### Singular Vector Decomposition
+Singular Vector Decomposition, in this context known as Latent Semantic Analysis,
+was attempted as well. With both text processing method above the number of
+columns generated is typically in the thousands to tens of thousands.
+Singular Vector Decomposition is a method that reduces the number of columns
+in a matrix to the ones that provide the least amount of redunancy. In
+machine learning terms this is referred to as dimensionality reduction.
+The idea is by giving the learniing algorith less features that provide
+more information it will have an easier time predicting the underlying
+patterns in the data. This technique posed some challenges as it was returning
+negative values, which cannot be used by the Naive Bayes classifier, but it was
+used in conjunction with the XGBoost solution.
 
 ### Implementation
+The implementation of the project focused on two objectives. One objective
+was scoring higher on the Kaggle Leaderboard, but the other was writing a
+more maintainable code library. Each will be discussed individually.
+
+#### Predictive Pipelines
+##### TDIDF and XGboost
+The first real attempt prediction was a simple TDIDF vectorizer with a
+default XGBoost Classifier. This pipeline was very simple, the entire
+model was literally two lines of python code. The model performed much better
+than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
+
+##### TDIDF, Lemmization, and XGboost
+##### TDIDF, Lemmization, and XGboost
+##### TDIDF, Lemmization, and XGboost
+The first real attempt prediction was a simple TDIDF vectorizer with a
+default XGBoost Classifier. This pipeline was very simple, the entire
+model was literally two lines of python code. The model performed much better
+than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
 In this section, the process for which metrics, algorithms, and techniques that you implemented for the given data will need to be clearly documented. It should be abundantly clear how the implementation was carried out, and discussion should be made regarding any complications that occurred during this process. Questions to ask yourself when writing this section:
+
 - _Is it made clear how the algorithms and techniques were implemented with the given datasets or input data?_
 - _Were there any complications with the original metrics or techniques that required changing prior to acquiring a solution?_
 - _Was there any part of the coding process (e.g., writing complicated functions) that should be documented?_
 
 ### Refinement
-In this section, you will need to discuss the process of improvement you made upon the algorithms and techniques you used in your implementation. For example, adjusting parameters for certain models to acquire improved solutions would fall under the refinement category. Your initial and final solutions should be reported, as well as any significant intermediate results as necessary. Questions to ask yourself when writing this section:
-- _Has an initial solution been found and clearly reported?_
-- _Is the process of improvement clearly documented, such as what techniques were used?_
-- _Are intermediate and final solutions clearly reported as the process is improved?_
+Numerous techniques and processes were used to refine the model.  The first was
+developing two methods to measure the model performance locally. The code
+for the model was implemented in such a way that made it very simple to use
+sklearns built in cross validation and grid search methods. Each processing
+step was implemented as either an sklearn transformer or and sklearn predictor.
+By using pipelines and feature unions, skearn provided the meta level programming
+blocks that made calling predict or transform on a pipeline method call
+both the custom and off the shelf code in the SpookyAuthorLibrary.
+With cross validation it became trivially easy to perform 5 fold validations
+to get an average score on unseen data.
+
+Another technique was the use of confusion matricies, specifically a matplotlib
+rendering that made it very easy to see what the true positives and false positives
+were predicted for each class. In this method it became easy for me to see
+where the model was misclassifying rows, such as predicting Edgar Allen Poe,
+when instead the label should have been HP Lovecraft.
+
+The last method was the Kaggle Leaderboard itself. By submitting the test set
+to the leaderboard I got a true score of how the model performs against unseen data.
+
+The actual process of refinement was largely detailed above, but it consisted
+of setting a baseline, evaluating why a model was predicting poorly, then
+trying a couple of experiements to see if the results matched my intuition.
+I must give a lot of credit to the Kaggle forums. I utilized those heavily to
+get ideas and see what others have tried and done.
 
 
 ## IV. Results
@@ -208,6 +295,13 @@ In this section, the final model and any supporting qualities should be evaluate
 - _Can results found from the model be trusted?_
 
 ### Justification
+Fortunately the final solution was better than the initial baseline, but unfortunately
+there are many submissions that perform better than it. Without knowledge of
+what others have done, I presume that many of them implemented techniques
+such as deep neural nets and model ensembling. While these techniques perform
+very well, with the hardware limitations I had it would have been
+difficult to replicate the results in a reasonable amount of time.
+
 In this section, your model’s final solution and its results should be compared to the benchmark you established earlier in the project using some type of statistical analysis. You should also justify whether these results and the solution are significant enough to have solved the problem posed in the project. Questions to ask yourself when writing this section:
 - _Are the final results found stronger than the benchmark result reported earlier?_
 - _Have you thoroughly analyzed and discussed the final solution?_
@@ -225,26 +319,36 @@ In this section, you will need to provide some form of visualization that emphas
 - _If a plot is provided, are the axes, title, and datum clearly defined?_
 
 ### Reflection
-In this section, you will summarize the entire end-to-end problem solution and discuss one or two particular aspects of the project you found interesting or difficult. You are expected to reflect on the project as a whole to show that you have a firm understanding of the entire process employed in your work. Questions to ask yourself when writing this section:
-- _Have you thoroughly summarized the entire process you used for this project?_
-- _Were there any interesting aspects of the project?_
-- _Were there any difficult aspects of the project?_
-- _Does the final model and solution fit your expectations for the problem, and should it be used in a general setting to solve these types of problems?_
+Kaggle competitions are rewarding in some ways, but challenging in others.
+For example it's nice to be able to just download a tidy dataset, and start working
+on predictions. However it becomes frustrating when you see that many others
+are able to make models that are much more predictive than yours. For me
+this is the difficulty with Kaggle, because it is competitive it requires
+large amount of dedication and time to get to the top. In some ways as well
+it's an unrealstic proxy for real life as the datasets and problems are predefined
+whereas in most companies solving those two problems are just as challenging
+as any of the math or coding.
+
+In the purely mathematical side I found it interesting to tweak the models
+and check the performance, notice how some features such as the hand built ones
+were not as predictive as I had hoped. It was also interesting noting how much
+the Naive Bayes models overfit the training dataset, and how cross validation
+was a pretty good estimator of final performance.
+
+From the implementation standpoint I really struggled with balancing
+"fast and loose scripting" with building a library. Building a library
+took more thought up front, and was also constraining, but when I got
+it right it made iterating on models much more quickly.
+
+My biggest takeaway however was the use of uniitesting in machine learning code.
+Using uniitests help me really understand how techniques were performding,
+as well as debug machine learning pipelines, in reusable and clear ways.
+In the future I'll continue using this technique to ensure that my hypothesis
+about how the code functions matches the actual functionality.
 
 ### Improvement
-In this section, you will need to provide discussion as to how one aspect of the implementation you designed could be improved. As an example, consider ways your implementation can be made more general, and what would need to be modified. You do not need to make this improvement, but the potential solutions resulting from these changes are considered and compared/contrasted to your current solution. Questions to ask yourself when writing this section:
-- _Are there further improvements that could be made on the algorithms or techniques you used in this project?_
-- _Were there algorithms or techniques you researched that you did not know how to implement, but would consider using if you knew how?_
-- _If you used your final solution as the new benchmark, do you think an even better solution exists?_
-
------------
-
-**Before submitting, ask yourself. . .**
-
-- Does the project report you’ve written follow a well-organized structure similar to that of the project template?
-- Is each section (particularly **Analysis** and **Methodology**) written in a clear, concise and specific fashion? Are there any ambiguous terms or phrases that need clarification?
-- Would the intended audience of your project be able to understand your analysis, methods, and results?
-- Have you properly proof-read your project report to assure there are minimal grammatical and spelling mistakes?
-- Are all the resources used for this project correctly cited and referenced?
-- Is the code that implements your solution easily readable and properly commented?
-- Does the code execute without error and produce results similar to those reported?
+Certainly the model can be improved, especially as proved by the Kaggle leaderboard.
+Further efforts on this project could increase the use of ensembling to measure
+the increase in performance. Additionally more advanced techniques such
+as Deep Learning could be utilized to see if more information could be
+extracted from the given dataset.
