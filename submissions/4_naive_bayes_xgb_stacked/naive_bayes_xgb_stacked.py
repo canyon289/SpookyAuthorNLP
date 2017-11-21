@@ -10,8 +10,8 @@ logging.basicConfig(filename='model_run.log', level=logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 logging.info("Starting New Run \n")
 
-CROSS_EVALUATE = True
-FULL_EVALUATE = False
+CROSS_EVALUATE = False
+FULL_EVALUATE = True
 SUBMISSION = False
 
 # Load data
@@ -93,10 +93,10 @@ if FULL_EVALUATE is True:
     labels = nb_features + tfidf_features
 
     booster = predict_pipeline.named_steps['xgb']
-    booster._Booster.feature_names = labels
+    # booster._Booster.feature_names = labels
 
     # Plot Importance
-    xgboost.plot_importance(booster)
+    xgboost.plot_importance(booster, max_num_features=20)
     plt.show()
 
 if SUBMISSION is True:
