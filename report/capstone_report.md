@@ -392,4 +392,5 @@ extracted from the given dataset.
 
 ### References
 https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html
+Code snippets and help used from sklearn website
 Various Kaggle help forums and kernels
