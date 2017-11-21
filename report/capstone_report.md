@@ -21,11 +21,21 @@ Mary Shelley, or HP Lovecraft".
 
 The problem will be split into approximately three chunks, Feature Engineering, Predictor Tuning, and Code Implementation
 
+Linguistic analysis is a very mature field. In academia there have been numerous studies
+that have been focused on determining who the author of a text was, by using various
+analyses. A relevant paper to this one is "Author Identification on the Large Scale" by Madigan Etal.
+In this paper the authors describe how they use Principal Component Analysis, and Multinominal Naive Bayes
+to identify the authors of text. Taking inspiration from the paper these are some of the techniques
+that will be used.
+
 #### Feature Engineering
 The dataset provided only comes with "base" feature column, which is a string of text. Fortunately the class of
 problem is very well known, and is typically referred to as a Natural Language Processing problem. In this class
 of problem, a raw string is translated into features using various transformations, such as Term Frequency Inverse
 Document Frequency, Word Count Length, Word Stemmers etc.
+
+For reference the the datasets can be found at this location.
+https://github.com/canyon289/SpookyAuthorNLP/tree/master/spookyauthor/data/raw
 
 #### Predictor Tuning
 After features have been defined the next step is apply statistical predictors to the dataset. Numerous algorithms
@@ -77,8 +87,13 @@ The dataset is roughly balanced with 7900 samples from Edgar Allen Poe,
 When looking at the most common words it can be seen that they're not very distinctive words, or even spooky words.
 Unfortunately they're words that we tend to see a lot, which unfortunately for the model won't help much with predictions.
 They indicate that we'll have to do some of the feature engineering to make this more usable.
- Later one we'll see how we remove these using the stop words method included in sklearn.
+Later one we'll see how we remove these using the stop words method included in sklearn.
 ![Stop Words ](images/StopWords.png "Count Per Author")
+
+Looking at the sentence lengths with a box plot we can see that they are centered around 20-40 words, although some of
+the authors have samples that are much in excess, over 800 in some cases. At this point I was unsure
+whether word count per sample would be predictive but it was easy enough to create a column and add it to the dataset.
+![Word Count Per Sample Per Author](images/SentenceLengthPlot.png "Word Count Per Author")
 
 ### Algorithms and Techniques
 #### Techniques
@@ -139,9 +154,17 @@ to have good performance in practice.
 
 #### XGboost
 XGBoost models are an implementation of boosted CART trees. In a quick summary the XGboost model is very popular
-as they have been shown to have extremely good performance with classification tasks. Typically in Kaggle competitions
-as well there are numerous tutorials that use XGboost models so to take advantage of other peoples experience,
-it is helpful to use XGboost as well to compare to other folks performance.
+as they have been shown to have extremely good performance with classification tasks. XGBoost utilizes random
+trees to find structure in the data, similar to extra trees and randomforest implementations. In addition
+however XGBoost gets it's namesake from using a technique calling boosting, where the next tree is 
+fit on the residuals, or errors, of the past tree, and that misclassifying examples are boosted in 
+weight, which pushes the classifier to try and fit the data points it previously classified incorrectly.
+Typically in Kaggle competitions as well there are numerous tutorials that use XGboost models so to take
+advantage of other peoples experience, it is helpful to use XGboost as well to compare to other folks performance.
+
+The mathematics behind XGBoost is non trivial. However the authors of the code provided an excellent
+tutorial detailing how the model functions, which is provided for reference here.  
+http://xgboost.readthedocs.io/en/latest/model.html
 
 ### Benchmark
 Two benchmarks were used were a dummy classifier, and a simple XGBoost pipeline with default parameters.
@@ -231,10 +254,13 @@ more maintainable code library. Each will be discussed individually.
 ##### TDIDF and XGboost
 The first real attempt prediction was a simple TDIDF vectorizer with a
 default XGBoost Classifier. This pipeline was very simple, the entire
-model was literally two lines of python code. The model performed much better
-than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
+model was literally two lines of python code. All parameters were set to
+defaults with the exception of the objective which was set to "multi:softprob". 
+Soft probability is the objective function of the overall competition so we
+wanted to ensure our model would match that intent.
+The model performed much better than the DummyClassifier, improving the score from 19 to .84 on the leaderboard.
 
-##### TDIDF, Lemmization, and XGboost
+##### TDIDF, Lemmatization, and XGboost
 The next model included Lemmatization. As described above lemmatization is a method where words that are topically
 similar are transformed to be represented as the same word. The difference between tokenization and lemmatization
 is that lemmatization transforms the words into non english words. The implementation of lemmatization required some
@@ -261,8 +287,15 @@ Creating these tools helped me with two insights. One was that the hand built fe
 the author. The other though was that meta learning that the faster I could iterate on features, the more quickly
 I could start converging on things that worked.
 
+Parameters that were changed here was just the ngram range in the text vectorizers. ngrams refer to how many 
+words create a token. For example an ngram of length one is just one word, like "hello" and "there", a ngram of length two
+would be "hello, there". This adds more features to the dataset but sometimes it words convey more meaning
+when paired with their neighbors.
+
 The results of this stage were extremely good and I was able to achieve the best performance to date, reducing my
-score to .49 on the public leaderboard.
+score to .49 on the public leaderboard. The parameters and pipeline used to achieve this result in summary
+was a countvectorizer with ngram length of (1,3), a lemmatization text preprocesser from the NLTK library,
+and a sklearn MultiNominal Naive Bayes classifier with the default parameters.
 
 ##### TDIDF, Lemmatization, and Naive Bayes XGboost Stack
 The last model I used Naive Bayes as a feature generator for an XGboost model. In this pipeline I used a CountVectorizer
@@ -285,6 +318,11 @@ To get human readable labels back, it again was doable but it required some hack
 ![Readable Features Labels](images/FeatureImportance_Labels.png "FeatureImportance Labels")
 Unfortunately again the model was my highest ranking model, coming in with a leaderboard score over 1, but an important
 outcome of this implementation was learning how far I could extend the sklearn API.
+
+Parameters that were changed in this model were the number of trees, which default is 100, but in this trial
+was changed from 100 to 500, to 1000, to see if any better result could be found. Similarly eta, and column sample
+by tree were tweaked, but the performance of all variations was similar and no one combination was particularly
+interesting.
 
 ### Refinement
 Numerous techniques and processes were used to refine the model.  The first was
@@ -353,7 +391,28 @@ project, without having to spend a lot of time trying to remember what I did in 
 using a similar template when at attempting any machine learning project.  
 
 ![Readable Features Labels](images/ProjectVisualization.png "Machine Learning Package"){height=400px}  
-  
+ 
+### End to End Solution
+The end to end solution is fairly typical of Kaggle machine learning competitions. In basic steps
+it can be detailed as 
+* Download a dataset
+* Perform some exploratory visualization
+* Build an initial prediction pipeline
+* Iterate on that pipeline
+* Stop when you've learned enough
+
+In my particular situation an additional pervasive goal was to build a machine learning library
+that had more of a typical python package structure, including reusable code and testing.
+A large challenge was the "uncharted" nature of machine learning in that by definition
+it's not clear what the input and outcome of any particular processing step will be,
+or what steps will be taken next. But the counter argument is that there's
+lots of boiler plate boring code that does traditional programming tasks, like loading
+data. 
+
+At the end of the project I felt that I had gained some experience making that balance,
+and also have learned an additional layer of challenges that come with leaky abstractions
+with this type of work.
+
 ### Reflection
 Kaggle competitions are rewarding in some ways, but challenging in others.
 For example it's nice to be able to just download a tidy dataset, and start working
@@ -394,3 +453,4 @@ extracted from the given dataset.
 https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html
 Code snippets and help used from sklearn website
 Various Kaggle help forums and kernels
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.60.5324&rep=rep1&type=pdf
