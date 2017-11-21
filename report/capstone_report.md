@@ -60,34 +60,25 @@ getting the top prize is all that's measured, in organizations it is necessary f
 a longer lifespan than just one prediction.
 
 ## II. Analysis
-_(approx. 2-4 pages)_
 
-### Data Exploration
-Taken from the project proposal.
+### Data Exploration and Visualizations
+Taken from the project proposal, an example of the data is shown below.
 **id26305, The surcingle hung in ribands from my body., EAP**
 In this string the ID is labeled with id26305, and the author is labeled as Edgar Allen Poe.
 In the string we can see some interesting words such as surgcingle and ribands.
 The hops is by analyzing the writing styles, word usage, and phrasing, of thousands
 of these strings we can id the authors without needing labels.
-
 The dataset is roughly balanced with 7900 samples from Edgar Allen Poe,
-6044 from Mary Shelley, and 5635 from HP Lovecraft. When making test
-train splits the stratified shuffle split will be used to preserve
-the class ratios from the train set.
+6044 from Mary Shelley, and 5635 from HP Lovecraft.
 
 
-In this section, you will be expected to analyze the data you are using for the problem. This data can either be in the form of a dataset (or datasets), input data (or input files), or even an environment. The type of data should be thoroughly described and, if possible, have basic statistics and information presented (such as discussion of input features or defining characteristics about the input or environment). Any abnormalities or interesting qualities about the data that may need to be addressed have been identified (such as features that need to be transformed or the possibility of outliers). Questions to ask yourself when writing this section:
-- _If a dataset is present for this problem, have you thoroughly discussed certain features about the dataset? Has a data sample been provided to the reader?_
-- _If a dataset is present for this problem, are statistics about the dataset calculated and reported? Have any relevant results from this calculation been discussed?_
-- _If a dataset is **not** present for this problem, has discussion been made about the input space or input data for your problem?_
-- _Are there any abnormalities or characteristics about the input space or dataset that need to be addressed? (categorical variables, missing values, outliers, etc.)_
+![Count of Authors](images/CountPerAuthor.png "Count Per Author")
 
-### Exploratory Visualization
-**Add more visualizations here later**
-In this section, you will need to provide some form of visualization that summarizes or extracts a relevant characteristic or feature about the data. The visualization should adequately support the data being used. Discuss why this visualization was chosen and how it is relevant. Questions to ask yourself when writing this section:
-- _Have you visualized a relevant characteristic or feature about the dataset or input data?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
+When looking at the most common words it can be seen that they're not very distinctive words, or even spooky words.
+Unfortunately they're words that we tend to see a lot, which unfortunately for the model won't help much with predictions.
+They indicate that we'll have to do some of the feature engineering to make this more usable.
+ Later one we'll see how we remove these using the stop words method included in sklearn.
+![Stop Words ](images/StopWords.png "Count Per Author")
 
 ### Algorithms and Techniques
 #### Techniques
@@ -286,9 +277,10 @@ more challenging part was using the feature_importance chart in XGboost.
 
 XGBoost provides a utility that lets users introspect into the model by seeing which features were most used for splits.
 Due to implementation details with sklearns pipelines, the feature labels would only display as numbers
-which would not be very human readable.
+which would not be very human readable.  
+
 ![Unreadable Features Labels](images/FeatureImportance.png "Feature Importance No Labels")
-To get human readable labels back, it again was doable but it required some hacks to get it to work.
+To get human readable labels back, it again was doable but it required some hacks to get it to work.  
 
 ![Readable Features Labels](images/FeatureImportance_Labels.png "FeatureImportance Labels")
 Unfortunately again the model was my highest ranking model, coming in with a leaderboard score over 1, but an important
@@ -349,15 +341,19 @@ difficult to replicate the results in a reasonable amount of time.
 
 
 ## V. Conclusion
-_(approx. 1-2 pages)_
 
 ### Free-Form Visualization
-In this section, you will need to provide some form of visualization that emphasizes an important quality about the project.
- It is much more free-form, but should reasonably support a significant result or characteristic about the problem that you want to discuss. Questions to ask yourself when writing this section:
-- _Have you visualized a relevant or important quality about the problem, dataset, input data, or results?_
-- _Is the visualization thoroughly analyzed and discussed?_
-- _If a plot is provided, are the axes, title, and datum clearly defined?_
 
+
+Although not a data visualization the most important outcome for me was learning the ins and outs of creating
+a reproducible data science package that can be easily shared, installed, validated, and built upon. In my chosen
+structure the code that is reusable is part of the package. Each submission is in it's own directory, along with
+a readme, an output file, and the code used to generate it. This structure has made it easy to iterate on this
+project, without having to spend a lot of time trying to remember what I did in the past. In the future I'll be
+using a similar template when at attempting any machine learning project.  
+
+![Readable Features Labels](images/ProjectVisualization.png "Machine Learning Package"){height=400px}  
+  
 ### Reflection
 Kaggle competitions are rewarding in some ways, but challenging in others.
 For example it's nice to be able to just download a tidy dataset, and start working
@@ -396,3 +392,4 @@ extracted from the given dataset.
 
 ### References
 https://nlp.stanford.edu/IR-book/html/htmledition/stemming-and-lemmatization-1.html
+Various Kaggle help forums and kernels
