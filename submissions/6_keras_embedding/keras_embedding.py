@@ -25,6 +25,7 @@ id, text, authors = Preprocessing.split_cols(train)
 from sklearn.preprocessing import LabelBinarizer
 l = LabelBinarizer()
 labels = l.fit_transform(authors)
+print(labels[:50])
 
 # fix random seed for reproducibility and set max words
 num_words = 3
@@ -41,7 +42,7 @@ padded_word_sequences = pad_sequences(word_sequences, maxlen=num_words)
 
 # Make model
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Flatten
+from keras.layers import Dense, LSTM, Flatten, Embedding
 from keras.layers import LSTM
 
 # 19579 rows
@@ -49,9 +50,10 @@ from keras.layers import LSTM
 
 
 model = Sequential()
-model.add(LSTM(128, input_shape=(None, (3, 19579))))
+model.add(Embedding(input_dim=4, output_dim=128, input_length=num_words))
+model.add(LSTM(128))
 model.add(Dense(3, activation='softmax'))
-model.compile(loss='crossentropy',
+model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy'])
 

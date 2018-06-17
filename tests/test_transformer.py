@@ -59,16 +59,21 @@ def test_naive_bayes_feature_names():
 
 
 def test_keras_to_sequences(text):
-    """Turns (1,m) strings into (m, 1, n_words) vectors"""
+    """Turns (1,m) strings into (m, n_words) vectors
+        Each index is an integer representing the word
+    """
     tokenizer = Tokenizer(num_words=5000)
     tokenizer.fit_on_texts(text)
     sequences = tokenizer.texts_to_sequences(text)
     assert sequences[0][0] == sequences[1][0]
-    # assert np.array(sequences).shape == (2, 1, 5)
+
+    # List lengths can be different
+    assert len(sequences[0]) == 4
+    assert len(sequences[1]) == 5
 
 
 def test_keras_tokenizer(text):
-    """Turns (1,m) strings into (m, 1, n_words) vectors"""
+    """Returns whether the word index exists, or tfidf, or count of word etc"""
     tokenizer = Tokenizer(num_words=5000)
     tokenizer.fit_on_texts(text)
     sequences = tokenizer.texts_to_matrix(text, mode='binary')
