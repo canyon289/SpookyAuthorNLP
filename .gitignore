@@ -105,3 +105,4 @@ ENV/
 
 *.swp
 submissions/**/*.csv
+.pytest_cache/

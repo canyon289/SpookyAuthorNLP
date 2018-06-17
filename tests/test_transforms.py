@@ -3,6 +3,7 @@ Pytests for troublesome transformation steps
 """
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
+from keras.preprocessing.text import Tokenizer
 import pytest
 
 
@@ -33,3 +34,4 @@ def test_svd_sign(data_target):
 
     svd = SVD.fit_transform(td_text)
     assert svd is not None
+
